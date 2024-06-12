@@ -2,7 +2,7 @@
 //  ContentView.swift
 //  GuessTheFlag
 //
-//  Created by Milena Beicker on 11/06/24.
+//  Created by Milena Beicker on 10/06/24.
 //
 
 import SwiftUI
@@ -13,6 +13,9 @@ struct ContentView: View {
     
     @State private var showingScore = false
     @State private var scoreTitle = ""
+    @State private var score = 0
+    @State private var questionCounter = 1
+    @State private var showingResults = false
     
     var body: some View {
         ZStack {
@@ -54,7 +57,7 @@ struct ContentView: View {
                 Spacer()
                 Spacer()
                 
-                Text("Score: ???")
+                Text("Score: \(score)")
                     .foregroundStyle(.white)
                     .font(.title.bold())
                 
@@ -65,7 +68,13 @@ struct ContentView: View {
         .alert(scoreTitle, isPresented: $showingScore) {
             Button("Continue", action: askQuestion)
         } message: {
-            Text("Your score is ???")
+            Text("Your score is \(score)")
+        }
+        
+        .alert("Game over!", isPresented: $showingResults) {
+            Button("Start Again", action: resetGame)
+        } message: {
+            Text("Your final score was \(score).")
         }
         
     }
@@ -73,8 +82,20 @@ struct ContentView: View {
     func flagTapped(_ number: Int) {
         if number == correctAnswer {
             scoreTitle = "Correct"
+            score += 1
         } else {
-            scoreTitle = "Wrong"
+            scoreTitle = "Wrong! Essa bandeira é da \(countries [number])"
+            
+//            if score > 0 {
+//                score -= 1
+//            }
+            
+        }
+        
+        if questionCounter == 8 {
+            showingResults = true
+        } else {
+            showingScore = true
         }
         
         showingScore = true
@@ -83,6 +104,14 @@ struct ContentView: View {
     func askQuestion() {
         countries.shuffle()
         correctAnswer = Int.random(in: 0...2)
+        questionCounter += 1
+    }
+    
+    func resetGame() {
+        askQuestion()
+        questionCounter = 1
+        score = 0
+       
     }
     
     
